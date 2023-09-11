@@ -44,7 +44,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/login").anonymous() // Ограничение доступа к странице входа только для неаутентифицированных пользователей
                 .antMatchers(HttpMethod.POST, "/login/**").permitAll()
                 .antMatchers("/user/**").hasRole("USER")
+                .antMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, "/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PUT, "/admin/**").hasRole("ADMIN")
                 .antMatchers("/static/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
