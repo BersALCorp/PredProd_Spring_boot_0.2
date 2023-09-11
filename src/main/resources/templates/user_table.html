@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      lang="ru" xml:lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <title>User Management</title>
+</head>
+<body>
+<h1>User Management</h1>
+<button id="logoutButton" onclick="logout()">Logout</button>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Gender</th>
+        <th>Years old</th>
+        <th>Login</th>
+        <th>Password</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Car</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <!--/*@thymesVar id="userList" type="web.model.User"*/-->
+    <tr th:each="user : ${userList}" th:if="${user != null}">
+        <td>
+            <label for="id"></label>
+            <input type="text" id="id" name="id" th:value="${user.id}" disabled>
+        </td>
+        <td>
+            <label for="firstName"></label>
+            <input type="text" id="firstName" name="firstName" th:value="${user.firstName}" disabled>
+        </td>
+        <td>
+            <label for="lastName"></label>
+            <input type="text" id="lastName" name="lastName" th:value="${user.lastName}" disabled>
+        </td>
+        <td>
+            <label for="sex"></label>
+            <select id="sex" name="sex" onchange="updateSelectedSex(this)" disabled>
+                <option th:each="sex : ${T(web.model.SexEnum).values()}"
+                        th:value="${sex.name()}" th:text="${sex.displayName}"
+                        th:selected="${sex == user.sex}"></option>
+            </select>
+        </td>
+        <td>
+            <label for="age"></label>
+            <input type="number" id="age" name="age" min="0" step="1" required th:value="${user.age}" disabled>
+        </td>
+        <td>
+            <label for="login"></label>
+            <input type="text" id="login" name="login" th:value="${user.login}" disabled>
+        </td>
+        <td>
+            <label for="password"></label>
+            <input type="password" id="password" name="password" th:value="${user.password}" disabled>
+        </td>
+        <td>
+            <label for="email"></label>
+            <input type="email" id="email" name="email" th:value="${user.email}" disabled>
+        </td>
+        <td>
+            <button onclick="roleButton(this)">VIEW ROLE</button>
+        </td>
+        <td>
+            <button th:if="${user.car}" onclick="carButton(this)">VIEW</button>
+            <button th:unless="${user.car}">HAVEN'T</button>
+        </td>
+    </tr>
+    </tbody>
+
+    <tbody id="userTableBody">
+    </tbody>
+</table>
+
+<div id="popup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup()">&times;</span>
+
+    </div>
+</div>
+
+<script>
+
+    function getCarByUserId(userId) {
+        return fetch(`getCar?userId=${userId}`, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Request failed');
+                }
+            })
+            .then(responseData => {
+                const getsCar = responseData.data;
+                const message = responseData.message;
+
+                console.log('Car:', getsCar);
+                console.log('massage:', message);
+
+                return getsCar;
+            })
+            .catch(error => {
+                console.error('Error save user:', error);
+            });
+    }
+
+    function getRoleByUserId(userId) {
+        return fetch(`getRoles?userId=${userId}`, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Request failed');
+                }
+            })
+            .then(responseData => {
+                const getRoles = responseData.data;
+                const message = responseData.message;
+
+                console.log('Roles:', getRoles);
+                console.log('Massage:', message);
+
+                return getRoles;
+            })
+            .catch(error => {
+                console.error('Error save user:', error);
+            });
+    }
+
+    async function carButton(button) {
+        const userRow = button.closest('tr');
+        const userIdInput = userRow.querySelector('input[name="id"]');
+        const userId = userIdInput.value;
+        const id = Number(userId);
+
+        showPopup();
+        const userTableRow = await createPopupCar(id);
+        const popupContent = document.querySelector('.popup-content');
+        popupContent.innerHTML = '';
+        popupContent.appendChild(userTableRow);
+    }
+
+    async function roleButton(button) {
+        const userRow = button.closest('tr');
+        const userIdInput = userRow.querySelector('input[name="id"]');
+        const userId = userIdInput.value;
+        const id = Number(userId);
+
+        showPopup();
+        const roleTableRows = await createPopupRole(id);
+        const popupContent = document.querySelector('.popup-content');
+        popupContent.innerHTML = '';
+        popupContent.appendChild(roleTableRows);
+    }
+
+    async function createPopupRole(userId) {
+        const popupContent = document.createElement('div');
+        popupContent.classList.add('popup-content');
+
+        const roles = await getRoleByUserId(userId);
+
+        const closeButton = document.createElement('span');
+        closeButton.classList.add('close');
+        closeButton.textContent = '×';
+        closeButton.addEventListener('click', closePopup);
+        popupContent.appendChild(closeButton);
+
+        const header = document.createElement('h2');
+        header.textContent = 'User roles';
+        popupContent.appendChild(header);
+
+        const roleList = document.createElement('ul');
+        roles.forEach(role => {
+            const roleCell = createSelectCellForRole('role', role.displayName);
+            const listItem = document.createElement('li');
+            listItem.appendChild(roleCell);
+            roleList.appendChild(listItem);
+        });
+        popupContent.appendChild(roleList);
+
+        return popupContent;
+    }
+
+    async function createPopupCar(userId) {
+        const popupContent = document.createElement('div');
+        popupContent.classList.add('popup-content');
+
+        const car = await getCarByUserId(userId);
+
+        const closeButton = document.createElement('span');
+        closeButton.classList.add('close');
+        closeButton.textContent = '×';
+        closeButton.onclick = closePopup;
+        popupContent.appendChild(closeButton);
+
+        const header = document.createElement('h2');
+        header.textContent = 'User Car';
+        popupContent.appendChild(header);
+
+        const excludeFields = ['toStringCalled', 'user', 'id'];
+
+        const carTable = document.createElement('table');
+        const carTableHead = document.createElement('thead');
+        const carTableBody = document.createElement('tbody');
+
+        const carKeys = Object.keys(car);
+        carKeys.forEach(key => {
+            if (excludeFields.includes(key)) {
+                return;
+            }
+
+            const headerCell = document.createElement('th');
+            headerCell.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+            carTableHead.appendChild(headerCell);
+
+            const dataCell = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = key;
+            input.value = car[key];
+            input.disabled = true;
+            dataCell.appendChild(input);
+            carTableBody.appendChild(dataCell);
+        });
+
+        carTable.appendChild(carTableHead);
+        carTable.appendChild(carTableBody);
+        popupContent.appendChild(carTable);
+
+        return popupContent;
+    }
+
+    function createSelectCellForRole(name, selectedValue) {
+        const cell = document.createElement('td');
+
+        const select = document.createElement('select');
+
+        select.name = name;
+
+        const roleValues = ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_MODERATOR', 'ROLE_GUEST'];
+        roleValues.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            if (value === selectedValue) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+            select.setAttribute('disabled', 'disabled');
+        });
+
+        cell.appendChild(select);
+        return cell;
+    }
+
+    function showPopup() {
+        const popup = document.getElementById("popup");
+        popup.style.display = "block";
+    }
+
+    function closePopup() {
+        const popup = document.getElementById("popup");
+        popup.style.display = "none";
+        location.reload();
+    }
+
+    function logout() {
+        fetch('/logout', {
+            method: 'POST'
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Logout failed', error);
+            });
+    }
+
+</script>
+
+<style>
+    .popup {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .popup-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        position: relative;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    #logoutButton {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+    }
+
+    .popup-button {
+        margin-right: 10px;
+    }
+
+    body {
+        position: relative;
+    }
+</style>
+</body>
+</html>
