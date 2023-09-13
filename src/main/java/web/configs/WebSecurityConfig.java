@@ -1,5 +1,7 @@
 package web.configs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,6 +24,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final AuthenticationProvider authenticationProvider;
     private final PasswordEncoder passwordEncoder;
+    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     @Autowired
     public WebSecurityConfig(SuccessUserHandler successUserHandler,
@@ -32,17 +35,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.userDetailsService = userDetailsService;
         this.authenticationProvider = authenticationProvider;
         this.passwordEncoder = passwordEncoder;
-
-        System.out.println("WebSecurityConfig constructor called");
+        logger.info("WebSecurityConfig constructor called");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        logger.info("WebSecurityConfig configure called");
         http
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/login").anonymous() // Ограничение доступа к странице входа только для неаутентифицированных пользователей
                 .antMatchers(HttpMethod.POST, "/login/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/register").permitAll()
                 .antMatchers("/user/**").hasRole("USER")
                 .antMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, "/admin/**").hasRole("ADMIN")
@@ -62,6 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        logger.info("Configure AuthenticationManagerBuilder");
         auth.authenticationProvider(authenticationProvider);
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }

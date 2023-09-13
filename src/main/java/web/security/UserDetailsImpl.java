@@ -1,5 +1,7 @@
 package web.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +14,8 @@ import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserDetailsImpl.class);
+
     private final String login;
     private final String password;
     private final Set<RoleEnum> roles;
@@ -20,6 +24,7 @@ public class UserDetailsImpl implements UserDetails {
         this.login = user.getLogin();
         this.password = user.getPassword();
         this.roles = user.getRoles();
+        logger.info("UserDetailsImpl created for user: {}", user);
     }
 
     @Override

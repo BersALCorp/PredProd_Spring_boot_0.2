@@ -2,10 +2,13 @@ package web.model;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "cars", schema = "public", catalog = "postgres")
@@ -32,11 +35,14 @@ public class Car {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private static final Logger logger = LoggerFactory.getLogger(Car.class);
+
     public Car(String brand, String series, String model, String color) {
         this.brand = brand;
         this.series = series;
         this.model = model;
         this.color = color;
+        logger.info("Car created");
     }
 
     @Override

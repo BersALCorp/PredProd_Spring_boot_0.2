@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8"/>
     <title>User Management</title>
+    <base href="/">
 </head>
 <body>
 <h1>User Management</h1>
@@ -170,7 +171,7 @@
             }
         });
 
-        fetch('saveUser', {
+        fetch('api/saveUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -188,7 +189,7 @@
                 }
             })
             .then(responseData => {
-                const newUser = responseData.user;
+                const newUser = responseData.data;
                 const message = responseData.message;
 
                 console.log('User saved:', newUser);
@@ -217,7 +218,7 @@
         })
         button.style.display = 'none';
         button.previousElementSibling.style.display = 'inline-block';
-        fetch('updateUser', {
+        fetch('api/updateUser', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -249,7 +250,7 @@
 
         console.log('Car:', carData);
 
-        fetch(`saveCar?userId=${userId}`, {
+        fetch(`api/saveCar?userId=${userId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -273,8 +274,8 @@
 
     function updateRoles(userId, selectedValues) {
 
-        fetch(`updateRoles/${userId}`, {
-            method: 'POST',
+        fetch(`api/updateRoles/${userId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -296,7 +297,7 @@
     }
 
     function deleteCar(userId) {
-        return fetch(`deleteCar/${userId}`, {
+        return fetch(`api/deleteCar/${userId}`, {
             method: 'DELETE'
         })
             .then(response => {
@@ -319,7 +320,7 @@
         const idElement = row.querySelector('input[name="id"]');
         const userId = idElement.value;
 
-        return fetch(`deleteUser/${userId}`, {
+        return fetch(`api/deleteUser/${userId}`, {
             method: 'DELETE'
         })
             .then(response => {
@@ -340,7 +341,7 @@
 
     function recreateTable() {
 
-        return fetch(`recreateTable`, {
+        return fetch(`api/recreateTable`, {
             method: 'DELETE'
         })
             .then(response => {
@@ -361,7 +362,7 @@
 
     function resetTable() {
 
-        return fetch(`resetTable`, {
+        return fetch(`api/resetTable`, {
             method: 'DELETE'
         })
             .then(response => {
@@ -381,7 +382,7 @@
     }
 
     function getCarByUserId(userId) {
-        return fetch(`getCar/${userId}`, {
+        return fetch(`api/getCar/${userId}`, {
             method: 'GET'
         })
             .then(response => {
@@ -392,7 +393,7 @@
                 }
             })
             .then(responseData => {
-                const getsCar = responseData.car;
+                const getsCar = responseData.data;
                 const message = responseData.message;
 
                 console.log('Car:', getsCar);
@@ -406,7 +407,7 @@
     }
 
     function getRoleByUserId(userId) {
-        return fetch(`getRoles/${userId}`, {
+        return fetch(`api/getRoles/${userId}`, {
             method: 'GET'
         })
             .then(response => {
@@ -417,7 +418,7 @@
                 }
             })
             .then(responseData => {
-                const getRoles = responseData.roles;
+                const getRoles = responseData.data;
                 const message = responseData.message;
 
                 console.log('Roles:', getRoles);
@@ -821,7 +822,7 @@
     }
 
     function logout() {
-        fetch('/logout', {
+        fetch('api/logout', {
             method: 'POST'
         })
             .then(response => {

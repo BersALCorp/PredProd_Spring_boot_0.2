@@ -87,7 +87,7 @@
 <script>
 
     function getCarByUserId(userId) {
-        return fetch(`getCar/${userId}`, {
+        return fetch(`api/getCar/${userId}`, {
             method: 'POST'
         })
             .then(response => {
@@ -112,7 +112,7 @@
     }
 
     function getRoleByUserId(userId) {
-        return fetch(`getRoles/${userId}`, {
+        return fetch(`api/getRoles/${userId}`, {
             method: 'POST'
         })
             .then(response => {

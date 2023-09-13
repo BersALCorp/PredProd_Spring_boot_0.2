@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8"/>
   <title>LOGIN</title>
+  <base href="/">
   <style>
     /* Center align the form */
     body {
@@ -58,7 +60,7 @@
 </form>
 
 <h2>Registration</h2>
-<form action="/login/register" method="post">
+<form action="api/register" method="post">
   <div>
     <label for="regUsername">Username:</label>
     <input type="text" id="regUsername" name="username" autocomplete="username">

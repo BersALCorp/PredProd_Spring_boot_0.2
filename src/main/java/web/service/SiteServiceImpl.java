@@ -1,5 +1,7 @@
 package web.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import web.model.Site;
@@ -11,9 +13,12 @@ import java.util.List;
 public class SiteServiceImpl implements SiteService {
 
     private final SiteRepository siteRepository;
+    private static final Logger logger = LoggerFactory.getLogger(SiteServiceImpl.class);
+
 
     @Autowired
     public SiteServiceImpl(SiteRepository siteRepository) {
+        logger.info("SiteServiceImpl created");
         this.siteRepository = siteRepository;
     }
 
@@ -22,7 +27,7 @@ public class SiteServiceImpl implements SiteService {
     }
 
     public List<Site> getAllAvailableSites() {
-        return siteRepository.findAll().stream().filter(site ->!site.isBlocked()).toList();
+        return siteRepository.findAll().stream().filter(site -> !site.isBlocked()).toList();
     }
 
     public List<Site> getAllBlockedSites() {

@@ -10,8 +10,6 @@ import java.util.Set;
 
 public interface UserService {
 
-//    boolean login(String login, String password);
-
     void registerUser(UserDto userDto);
 
     List<User> findAllSorted();

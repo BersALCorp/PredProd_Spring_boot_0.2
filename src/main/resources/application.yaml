@@ -1,0 +1,71 @@
+server:
+  port: 8082
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: bers
+    password: 123456we
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: true
+    properties:
+      properties.hibernate.transaction.jta.platform: org.hibernate.engine.transaction.jta.platform.internal.TomcatJtaPlatform
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      hibernate.format_sql: true
+      hibernate.show_sql: true
+      hibernate.use_sql_comments: true
+      hibernate.jdbc.lob.non_contextual_creation: true
+  jmx:
+    enabled: true
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  web:
+    resources:
+      static-locations: classpath:/templates/
+      add-mappings: on
+  mvc:
+    converters:
+      preferred-json-mapper: jackson
+  thymeleaf:
+    encoding: UTF-8
+    cache: true
+    mode: XML
+    suffix: .html
+    prefix: classpath:/templates/
+
+logging:
+  level:
+    root: info
+    com.bers.springboot: debug
+    org.springframework.web: info
+    org.hibernate: info
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.type.descriptor.sql.BasicExtractor: trace
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: trace
+    org.hibernate.engine.jdbc.env.internal.LobCreatorBuilderImpl: trace
+    org.hibernate.type.descriptor.sql.BlobColumnDescriptor: trace
+    org.hibernate.type.descriptor.sql.BlobTypeDescriptor: trace
+    org.hibernate.type.descriptor.sql.ClobTypeDescriptor: trace
+    org.hibernate.type.descriptor.sql.ForwardOnlyResultSetTypeDescriptor: trace
+    org.hibernate.type.descriptor.sql.SqlTypeDescriptor: trace
+    org.hibernate.type.descriptor.sql.SqlTypeDescriptorRegistry: trace
+    org.hibernate.type.descriptor.sql.TypedSqlValue: trace
+    org.hibernate.type.descriptor.sql.VarbinaryTypeDescriptor: trace
+    org.hibernate.type.descriptor.sql.VarcharTypeDescriptor: trace
+    open-in-view: DEBUG
+
+resttemplate:
+  connect-timeout: 5000
+  read-timeout: 5000
+

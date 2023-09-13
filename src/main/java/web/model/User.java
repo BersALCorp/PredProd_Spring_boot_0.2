@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.io.IOException;
@@ -58,7 +60,10 @@ public class User {
     @JoinColumn(name = "car_id")
     private Car car;
 
-    public User(String firstName, String lastName, SexEnum sex, int age, String login, String password, String email, RoleEnum roles) {
+    private static final Logger logger = LoggerFactory.getLogger(User.class);
+
+
+    public User(String firstName, String lastName, SexEnum sex, int age, String login, String password, String email, RoleEnum role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.sex = sex;
@@ -66,12 +71,8 @@ public class User {
         this.login = login;
         this.password = password;
         this.email = email;
-        this.roles.add(roles);
-    }
-
-    public User(String login, String password) {
-        this.login = login;
-        this.password = password;
+        this.roles.add(role);
+        logger.info("User created");
     }
 
     @Override
