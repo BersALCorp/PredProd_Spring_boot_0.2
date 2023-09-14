@@ -1,7 +1,6 @@
 package web.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,24 +20,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Log4j2
 @RestController
 @RequestMapping("/api")
 public class ApiController {
 
     private final UserService userService;
-    private static final Logger logger = LoggerFactory.getLogger(ApiController.class);
 
 
     @Autowired
     public ApiController(UserService userService) {
         this.userService = userService;
-        logger.info("ApiController created");
+        log.info("ApiController created");
     }
 
     @GetMapping("/getCar/{userId}")
     public ResponseEntity<Map<String, Object>> getCar(@PathVariable("userId") long userId) {
         try {
-            logger.info("User with id: {} is trying to get his car.", userId);
+            log.info("Trying get car by User with id: {} .", userId);
             Car car = userService.getCarByUserId(userId);
             if (car == null) {
                 return ResponseEntity.ok(responseCreator("Car not found.", null));
@@ -52,7 +51,7 @@ public class ApiController {
     @GetMapping("/getRoles/{userId}")
     public ResponseEntity<Map<String, Object>> getRoles(@PathVariable("userId") long userId) {
         try {
-            logger.info("User with id: {} is trying to get his roles.", userId);
+            log.info("Trying to get roles from User with id: {} .", userId);
             Set<RoleEnum> roles = userService.getRoleByUserId(userId);
             if (roles == null) {
                 return ResponseEntity.ok(responseCreator("Roles not found.", null));
@@ -69,7 +68,7 @@ public class ApiController {
         try {
             Map<String, Object> userMap = (Map<String, Object>) requestData.get("user");
             Map<String, Object> rolesMap = (Map<String, Object>) requestData.get("roles");
-            logger.info("User with id: {} is trying to save his user and roles.", userMap.get("id"));
+            log.info("Trying to save user with id: {} .", userMap.get("id"));
             RoleEnum role = RoleEnum.valueOf(rolesMap.get("roles").toString());
             User user = new User(
                     (String) userMap.get("firstName"),
@@ -94,7 +93,7 @@ public class ApiController {
     @PostMapping("/saveCar")
     public ResponseEntity<String> saveOrUpdateCar(@RequestParam("userId") long userId, @RequestBody Map<String, Object> requestData) {
         try {
-            logger.info("User with id: {} is trying to save his car.", userId);
+            log.info("Trying to save car for user with id: {} .", userId);
             String brand = requestData.get("brand").toString();
             String series = requestData.get("series").toString();
             String model = requestData.get("model").toString();
@@ -113,7 +112,7 @@ public class ApiController {
     @PutMapping("/updateUser")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
         try {
-            logger.info("User with id: {} is trying to update his data.", user.getId());
+            log.info("Trying to update user with id: {} .", user.getId());
             userService.updateUser(user);
             return ResponseEntity.ok("User id: " + user.getId() + " update successfully.");
         } catch (Exception e) {
@@ -125,7 +124,7 @@ public class ApiController {
     @PutMapping("/updateRoles/{userId}")
     public ResponseEntity<String> updateRoles(@PathVariable("userId") long userId, @RequestBody String[] roles) {
         try {
-            logger.info("User with id: {} is trying to update his roles.", userId);
+            log.info("Trying to update roles to user with id: {} .", userId);
             Set<RoleEnum> rolesEnum = Arrays.stream(roles)
                     .map(RoleEnum::valueOf)
                     .collect(Collectors.toSet());
@@ -142,7 +141,7 @@ public class ApiController {
     @DeleteMapping("/deleteUser/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable("userId") long userId) {
         try {
-            logger.info("User with id: {} is trying to delete his account.", userId);
+            log.info("Trying to delete user with id: {} .", userId);
             userService.deleteById(userId);
             return ResponseEntity.ok("User id: " + userId + " deleted successfully");
         } catch (Exception e) {
@@ -154,7 +153,7 @@ public class ApiController {
     @DeleteMapping("/deleteCar/{userId}")
     public ResponseEntity<String> deleteCar(@PathVariable("userId") long userId) {
         try {
-            logger.info("User with id: {} is trying to delete his car.", userId);
+            log.info("Trying to delete car with id: {} .", userId);
             userService.deleteCar(userId);
             return ResponseEntity.ok("Car deleted successfully");
         } catch (Exception e) {
@@ -166,7 +165,7 @@ public class ApiController {
     @DeleteMapping("/resetTable")
     public ResponseEntity<String> resetTable() {
         try {
-            logger.info("Trying to reset table.");
+            log.info("Trying to reset table.");
             userService.resetTable();
             return ResponseEntity.ok("Reset table successfully");
         } catch (Exception e) {
@@ -178,7 +177,7 @@ public class ApiController {
     @DeleteMapping("/recreateTable")
     public ResponseEntity<String> recreateTable() {
         try {
-            logger.info("Trying to recreate table.");
+            log.info("Trying to recreate table.");
             userService.recreateTable();
             return ResponseEntity.ok("Recreate table successfully");
         } catch (Exception e) {
@@ -189,7 +188,7 @@ public class ApiController {
     @PostMapping("/register")
     public RedirectView registerUser(@RequestParam String username, @RequestParam String password, @RequestParam String confirmPassword) {
         try {
-            logger.info("Trying to register user: {}", username);
+            log.info("Trying to register user: " + username);
             if (!password.equals(confirmPassword)) {
                 return new RedirectView("/register?error");
             }
@@ -204,7 +203,7 @@ public class ApiController {
     @PostMapping("/logout")
     public RedirectView logout() {
         try {
-            logger.info("Trying to logout user.");
+            log.info("Trying to logout user.");
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null) {
                 SecurityContextHolder.clearContext();
@@ -216,7 +215,7 @@ public class ApiController {
     }
 
     private Map<String, Object> responseCreator(String message, Object data) {
-        logger.info("Creating response: {}", message);
+        log.info("Response: {}", message);
         Map<String, Object> response = new HashMap<>();
         response.put("message", message);
         response.put("data", data);
@@ -224,7 +223,7 @@ public class ApiController {
     }
 
     private UserDto createUserDto(String username, String password) {
-        logger.info("Creating user: {}", username);
+        log.info("Creating user: {}", username);
         return new UserDto(username, password, RoleEnum.ROLE_ADMIN);
     }
 }

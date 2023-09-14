@@ -8,8 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 
 import javax.persistence.*;
 import java.io.IOException;
@@ -20,6 +19,7 @@ import java.util.Set;
 @Table(name = "users", schema = "public", catalog = "postgres")
 @Getter
 @Setter
+@Log4j2
 @NoArgsConstructor
 public class User {
     @Transient
@@ -60,8 +60,6 @@ public class User {
     @JoinColumn(name = "car_id")
     private Car car;
 
-    private static final Logger logger = LoggerFactory.getLogger(User.class);
-
 
     public User(String firstName, String lastName, SexEnum sex, int age, String login, String password, String email, RoleEnum role) {
         this.firstName = firstName;
@@ -72,7 +70,7 @@ public class User {
         this.password = password;
         this.email = email;
         this.roles.add(role);
-        logger.info("User created");
+        log.info("User created with firstName={}, lastName={}, sex={}, age={}, login={}, password={}, email={}, role={}", firstName, lastName, sex, age, login, password, email, role);
     }
 
     @Override

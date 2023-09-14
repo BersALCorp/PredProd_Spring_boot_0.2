@@ -1,7 +1,6 @@
 package web.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import web.model.Site;
@@ -9,16 +8,15 @@ import web.repository.SiteRepository;
 
 import java.util.List;
 
+@Log4j2
 @Service
 public class SiteServiceImpl implements SiteService {
 
     private final SiteRepository siteRepository;
-    private static final Logger logger = LoggerFactory.getLogger(SiteServiceImpl.class);
-
 
     @Autowired
     public SiteServiceImpl(SiteRepository siteRepository) {
-        logger.info("SiteServiceImpl created");
+        log.info("SiteServiceImpl created");
         this.siteRepository = siteRepository;
     }
 

@@ -48,21 +48,8 @@ logging:
     root: info
     com.bers.springboot: debug
     org.springframework.web: info
-    org.hibernate: info
+    org.hibernate: debug
     org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
-    org.hibernate.type.descriptor.sql.BasicExtractor: trace
-    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: trace
-    org.hibernate.engine.jdbc.env.internal.LobCreatorBuilderImpl: trace
-    org.hibernate.type.descriptor.sql.BlobColumnDescriptor: trace
-    org.hibernate.type.descriptor.sql.BlobTypeDescriptor: trace
-    org.hibernate.type.descriptor.sql.ClobTypeDescriptor: trace
-    org.hibernate.type.descriptor.sql.ForwardOnlyResultSetTypeDescriptor: trace
-    org.hibernate.type.descriptor.sql.SqlTypeDescriptor: trace
-    org.hibernate.type.descriptor.sql.SqlTypeDescriptorRegistry: trace
-    org.hibernate.type.descriptor.sql.TypedSqlValue: trace
-    org.hibernate.type.descriptor.sql.VarbinaryTypeDescriptor: trace
-    org.hibernate.type.descriptor.sql.VarcharTypeDescriptor: trace
     open-in-view: DEBUG
 
 resttemplate:

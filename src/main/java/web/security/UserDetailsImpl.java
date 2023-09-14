@@ -1,7 +1,6 @@
 package web.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,9 +11,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Log4j2
 public class UserDetailsImpl implements UserDetails {
-
-    private static final Logger logger = LoggerFactory.getLogger(UserDetailsImpl.class);
 
     private final String login;
     private final String password;
@@ -24,7 +22,7 @@ public class UserDetailsImpl implements UserDetails {
         this.login = user.getLogin();
         this.password = user.getPassword();
         this.roles = user.getRoles();
-        logger.info("UserDetailsImpl created for user: {}", user);
+        log.info("UserDetailsImpl created for user: {}", user);
     }
 
     @Override

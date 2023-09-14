@@ -1,7 +1,6 @@
 package web.configs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import web.security.SuccessUserHandler;
 
+@Log4j2
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -24,7 +24,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final AuthenticationProvider authenticationProvider;
     private final PasswordEncoder passwordEncoder;
-    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     @Autowired
     public WebSecurityConfig(SuccessUserHandler successUserHandler,
@@ -35,12 +34,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.userDetailsService = userDetailsService;
         this.authenticationProvider = authenticationProvider;
         this.passwordEncoder = passwordEncoder;
-        logger.info("WebSecurityConfig constructor called");
+        log.info("WebSecurityConfig constructor called");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        logger.info("WebSecurityConfig configure called");
+        log.info("WebSecurityConfig configure called");
         http
                 .csrf().disable()
                 .authorizeRequests()
@@ -66,7 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        logger.info("Configure AuthenticationManagerBuilder");
+        log.info("Configure AuthenticationManagerBuilder");
         auth.authenticationProvider(authenticationProvider);
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }

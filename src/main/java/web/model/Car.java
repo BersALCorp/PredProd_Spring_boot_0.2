@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 
 import javax.persistence.*;
 
@@ -14,6 +13,7 @@ import javax.persistence.*;
 @Table(name = "cars", schema = "public", catalog = "postgres")
 @Getter
 @Setter
+@Log4j2
 @NoArgsConstructor
 public class Car {
     @Transient
@@ -35,14 +35,12 @@ public class Car {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private static final Logger logger = LoggerFactory.getLogger(Car.class);
-
     public Car(String brand, String series, String model, String color) {
         this.brand = brand;
         this.series = series;
         this.model = model;
         this.color = color;
-        logger.info("Car created");
+        log.info("Car created with brand: {} , series: {} , model: {} , color: {} .",  brand, series, model, color);
     }
 
     @Override
