@@ -36,15 +36,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void registerUser(UserDto userDto) {
         log.info("start registerUser in service");
-        User user = new User();
-        user.setFirstName("");
-        user.setLastName("");
-        user.setSex(SexEnum.UNDEFINED);
-        user.setAge(0);
-        user.setEmail("");
-        user.setLogin(userDto.getLogin());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        user.getRoles().add(userDto.getRole());
+        User user = new User(
+                "",
+                "",
+                SexEnum.UNDEFINED,
+                0,
+                "",
+                userDto.getLogin(),
+                passwordEncoder.encode(userDto.getPassword()),
+                userDto.getRole()
+        );
         userRepository.save(user);
         log.info("end registerUser in service");
     }
@@ -122,18 +123,11 @@ public class UserServiceImpl implements UserService {
         userRepository.findById(user.getId()).ifPresent(existingUser -> {
             Car existingCar = existingUser.getCar();
             Set<RoleEnum> existingUserRoles = existingUser.getRoles();
-
-            existingUser.setFirstName(user.getFirstName());
-            existingUser.setLastName(user.getLastName());
-            existingUser.setAge(user.getAge());
-            existingUser.setLogin(user.getLogin());
-            existingUser.setPassword(user.getPassword());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setSex(user.getSex());
-            existingUser.setRoles(existingUserRoles);
-            existingUser.setCar(existingCar);
+            user.setCar(existingCar);
+            user.setRoles(existingUserRoles);
+            userRepository.save(user);
+            log.info("done updateUser in service");
         });
-        log.info("end updateUser in service");
     }
 
     @Override

@@ -89,7 +89,8 @@
         <td>NEW PERSON</td>
         <td>
             <label for="newFirstName"></label>
-            <input type="text" id="newFirstName" name="firstName" th:value="${newFirstName != null ? newFirstName : ''}">
+            <input type="text" id="newFirstName" name="firstName"
+                   th:value="${newFirstName != null ? newFirstName : ''}">
         </td>
         <td>
             <label for="newLastName"></label>
@@ -112,7 +113,8 @@
         </td>
         <td>
             <label for="newPassword"></label>
-            <input type="password" id="newPassword" name="password" th:value="${newPassword != null ? newPassword : ''}">
+            <input type="password" id="newPassword" name="password"
+                   th:value="${newPassword != null ? newPassword : ''}">
         </td>
         <td>
             <label for="newEmail"></label>
@@ -120,7 +122,7 @@
         </td>
         <td>
             <label for="newRole"></label>
-            <select id="newRole" name="roles" onchange="updateSelectedRole(this)">
+            <select id="newRole" name="role" onchange="updateSelectedRole(this)">
                 <option th:each="role : ${T(web.model.RoleEnum).values()}"
                         th:value="${role.name()}" th:text="${role.displayName}"></option>
             </select>
@@ -158,12 +160,12 @@
         const row = button.closest('tr');
         const inputs = row.querySelectorAll('input, select');
         const user = {};
-        const roles = {};
+        var role;
 
         inputs.forEach(input => {
-            if (input.name === 'roles') {
+            if (input.name === 'role') {
                 console.log(input.value);
-                roles[input.name] = input.value;
+                role = input.value;
                 input.setAttribute('disabled', 'disabled');
             } else {
                 user[input.name] = input.value;
@@ -171,15 +173,17 @@
             }
         });
 
+        const combinedData = {
+            user: user,
+            role: role
+        }
+
         fetch('api/saveUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                user: user,
-                roles: roles
-            })
+            body: JSON.stringify(combinedData)
         })
             .then(response => {
                 if (response.ok) {

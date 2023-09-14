@@ -1,11 +1,13 @@
 server:
-  port: 8082
+  port: ${SERVER_PORT}
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: bers
-    password: 123456we
+    url: ${DB_BASE_URL}://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: update

@@ -1,5 +1,8 @@
 package web.controller;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +14,10 @@ import org.springframework.web.servlet.view.RedirectView;
 import web.exception.AdminControllerException;
 import web.exception.AuthControllerException;
 import web.exception.LogoutControllerException;
-import web.model.*;
+import web.model.Car;
+import web.model.RoleEnum;
+import web.model.User;
+import web.model.UserDto;
 import web.service.UserService;
 
 import java.util.Arrays;
@@ -64,25 +70,12 @@ public class ApiController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/saveUser")
-    public ResponseEntity<Map<String, Object>> saveUser(@RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<Map<String, Object>> saveUser(@RequestBody CombinedData combinedData) {
         try {
-            Map<String, Object> userMap = (Map<String, Object>) requestData.get("user");
-            Map<String, Object> rolesMap = (Map<String, Object>) requestData.get("roles");
-            log.info("Trying to save user with id: {} .", userMap.get("id"));
-            RoleEnum role = RoleEnum.valueOf(rolesMap.get("roles").toString());
-            User user = new User(
-                    (String) userMap.get("firstName"),
-                    (String) userMap.get("lastName"),
-                    SexEnum.valueOf(userMap.get("sex").toString()),
-                    Integer.parseInt(userMap.get("age").toString()),
-                    (String) userMap.get("login"),
-                    (String) userMap.get("password"),
-                    (String) userMap.get("email"),
-                    role
-            );
-
+            log.info("Trying to save user with data: {} .", combinedData);
+            User user = combinedData.getUser();
+            RoleEnum role = RoleEnum.valueOf(combinedData.getRole());
             User savedUser = userService.saveUser(user, role);
-
             return ResponseEntity.ok(responseCreator("User saved successfully.", savedUser));
         } catch (Exception e) {
             throw new AdminControllerException("Ошибка при сохранении пользователя.", e);
@@ -91,16 +84,9 @@ public class ApiController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/saveCar")
-    public ResponseEntity<String> saveOrUpdateCar(@RequestParam("userId") long userId, @RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<String> saveOrUpdateCar(@RequestParam("userId") long userId, @RequestBody Car car) {
         try {
             log.info("Trying to save car for user with id: {} .", userId);
-            String brand = requestData.get("brand").toString();
-            String series = requestData.get("series").toString();
-            String model = requestData.get("model").toString();
-            String color = requestData.get("color").toString();
-
-            Car car = new Car(brand, series, model, color);
-
             userService.saveOrUpdateCar(userId, car);
             return ResponseEntity.ok("Car saved successfully.");
         } catch (Exception e) {
@@ -211,7 +197,7 @@ public class ApiController {
         } catch (Exception e) {
             throw new LogoutControllerException("Error in logging out. " + e);
         }
-        return new  RedirectView("/login");
+        return new RedirectView("/login");
     }
 
     private Map<String, Object> responseCreator(String message, Object data) {
@@ -225,5 +211,13 @@ public class ApiController {
     private UserDto createUserDto(String username, String password) {
         log.info("Creating user: {}", username);
         return new UserDto(username, password, RoleEnum.ROLE_ADMIN);
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    static class CombinedData {
+        private User user;
+        private String role;
     }
 }
