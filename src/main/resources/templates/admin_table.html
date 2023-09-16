@@ -669,12 +669,12 @@
             editButton.style.display = 'none';
             deleteButton.style.display = 'none';
             addButton.style.display = 'inline-block';
-            saveButton.style.display = 'none'; // скрываем кнопку SAVE
+            saveButton.style.display = 'none';
         } else {
             editButton.style.display = 'inline-block';
             deleteButton.style.display = 'inline-block';
             addButton.style.display = 'none';
-            saveButton.style.display = 'none'; // отображаем кнопку SAVE
+            saveButton.style.display = 'none';
         }
 
 
@@ -752,7 +752,6 @@
                 option.selected = true;
             }
             select.appendChild(option);
-            // select.setAttribute('disabled', 'disabled');
         });
 
         cell.appendChild(select);

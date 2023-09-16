@@ -6,10 +6,10 @@ public class UserControllerException extends RuntimeException {
     }
 
     public UserControllerException(String message) {
-        super("Error in UserController: " + message);
+        super(message);
     }
 
     public UserControllerException(String message, Throwable cause) {
-        super("Error in UserController: " + message, cause);
+        super(message, cause);
     }
 }

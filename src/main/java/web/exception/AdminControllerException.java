@@ -6,10 +6,10 @@ public class AdminControllerException extends RuntimeException {
     }
 
     public AdminControllerException(String message) {
-        super("Error in AdminController: " + message);
+        super(message);
     }
 
     public AdminControllerException(String message, Throwable cause) {
-        super("Error in AdminController: " + message, cause);
+        super(message, cause);
     }
 }

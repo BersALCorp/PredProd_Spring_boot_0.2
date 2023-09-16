@@ -48,7 +48,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             + ");", nativeQuery = true)
     void createCarsTable();
 
-
     User findByLogin(String login);
 
     boolean existsByLogin(String login);

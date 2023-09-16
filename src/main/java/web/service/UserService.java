@@ -1,5 +1,6 @@
 package web.service;
 
+import web.exception.UserServiceException;
 import web.model.Car;
 import web.model.RoleEnum;
 import web.model.User;
@@ -10,7 +11,7 @@ import java.util.Set;
 
 public interface UserService {
 
-    void registerUser(UserDto userDto);
+    void registerUser(UserDto userDto) throws UserServiceException;
 
     List<User> findAllSorted();
 

@@ -2,11 +2,8 @@ package web.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
-@ToString
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum RoleEnum implements GrantedAuthority {
 
@@ -40,5 +37,13 @@ public enum RoleEnum implements GrantedAuthority {
     @Override
     public String getAuthority() {
         return displayName;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("RoleEnum{");
+        sb.append("displayName='").append(displayName).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

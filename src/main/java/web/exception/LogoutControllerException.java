@@ -6,10 +6,10 @@ public class LogoutControllerException extends RuntimeException {
     }
 
     public LogoutControllerException(String message) {
-        super("Error in LogoutController: " + message);
+        super(message);
     }
 
     public LogoutControllerException(String message, Throwable cause) {
-        super("Error in LogoutController: " + message, cause);
+        super(message, cause);
     }
 }

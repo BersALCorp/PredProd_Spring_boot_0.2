@@ -5,9 +5,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 import javax.persistence.*;
@@ -17,10 +14,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users", schema = "public", catalog = "postgres")
-@Getter
-@Setter
 @Log4j2
-@NoArgsConstructor
 public class User {
     @Transient
     boolean toStringCalled;
@@ -60,6 +54,7 @@ public class User {
     @JoinColumn(name = "car_id")
     private Car car;
 
+    public User() {}
 
     public User(String firstName, String lastName, SexEnum sex, int age, String login, String password, String email, RoleEnum role) {
         this.firstName = firstName;
@@ -95,6 +90,94 @@ public class User {
         return sb.toString();
     }
 
+    public boolean isToStringCalled() {
+        return toStringCalled;
+    }
+
+    public void setToStringCalled(boolean toStringCalled) {
+        this.toStringCalled = toStringCalled;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public SexEnum getSex() {
+        return sex;
+    }
+
+    public void setSex(SexEnum sex) {
+        this.sex = sex;
+    }
+
+    public Set<RoleEnum> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleEnum> roles) {
+        this.roles = roles;
+    }
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
+    }
+
     public static class SexEnumDeserializer extends JsonDeserializer<SexEnum> {
         @Override
         public SexEnum deserialize(JsonParser parser, DeserializationContext context) throws IOException {
@@ -110,5 +193,7 @@ public class User {
             return (value != null) ? RoleEnum.fromValue(value) : null;
         }
     }
+
+
 }
 

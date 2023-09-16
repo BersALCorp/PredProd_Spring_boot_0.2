@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8"/>
     <title>User Management</title>
+    <base href="/">
 </head>
 <body>
 <h1>User Management</h1>
@@ -88,7 +89,7 @@
 
     function getCarByUserId(userId) {
         return fetch(`api/getCar/${userId}`, {
-            method: 'POST'
+            method: 'GET'
         })
             .then(response => {
                 if (response.ok) {
@@ -113,7 +114,7 @@
 
     function getRoleByUserId(userId) {
         return fetch(`api/getRoles/${userId}`, {
-            method: 'POST'
+            method: 'GET'
         })
             .then(response => {
                 if (response.ok) {

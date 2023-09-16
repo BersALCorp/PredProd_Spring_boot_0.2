@@ -11,10 +11,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "cars", schema = "public", catalog = "postgres")
-@Getter
-@Setter
 @Log4j2
-@NoArgsConstructor
 public class Car {
     @Transient
     boolean toStringCalled;
@@ -35,6 +32,7 @@ public class Car {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public Car(){}
     public Car(String brand, String series, String model, String color) {
         this.brand = brand;
         this.series = series;
@@ -59,5 +57,61 @@ public class Car {
         }
         sb.append('}');
         return sb.toString();
+    }
+
+    public boolean isToStringCalled() {
+        return toStringCalled;
+    }
+
+    public void setToStringCalled(boolean toStringCalled) {
+        this.toStringCalled = toStringCalled;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getSeries() {
+        return series;
+    }
+
+    public void setSeries(String series) {
+        this.series = series;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

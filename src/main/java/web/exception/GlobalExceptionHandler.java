@@ -1,40 +1,60 @@
 package web.exception;
 
+import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+@Log4j2
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // Обработчик исключений для AdminController
     @ExceptionHandler(AdminControllerException.class)
-    public ResponseEntity<String> handleAdminControllerException(AdminControllerException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка в AdminController: " + e.getMessage());
+    public ResponseEntity<Object> handleAdminControllerException(AdminControllerException e, WebRequest request) {
+        log.error("Error in AdminController: " + e.getMessage());
+        var body = "Error in AdminController: " + e.getMessage();
+        return handleExceptionInternal(e, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
-    // Обработчик исключений для AuthController
     @ExceptionHandler(AuthControllerException.class)
-    public ResponseEntity<String> handleAuthControllerException(AuthControllerException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка в AuthController: " + e.getMessage());
+    public ResponseEntity<Object> handleAuthControllerException(AuthControllerException e, WebRequest request) {
+        log.error("Error in AuthController: " + e.getMessage());
+        var body = "Error in AuthController: " + e.getMessage();
+        return handleExceptionInternal(e, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
-    // Обработчик исключений для LogoutController
     @ExceptionHandler(LogoutControllerException.class)
-    public ResponseEntity<String> handleLogoutControllerException(LogoutControllerException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка в LogoutController: " + e.getMessage());
+    public ResponseEntity<Object> handleLogoutControllerException(LogoutControllerException e, WebRequest request) {
+        log.error("Error in LogoutController: " + e.getMessage());
+        var body = "Error in LogoutController: " + e.getMessage();
+        return handleExceptionInternal(e, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
-    // Обработчик исключений для UserController
     @ExceptionHandler(UserControllerException.class)
-    public ResponseEntity<String> handleUserControllerException(UserControllerException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка в UserController: " + e.getMessage());
+    public ResponseEntity<Object> handleUserControllerException(UserControllerException e, WebRequest request) {
+        log.error("Error in UserController: " + e.getMessage());
+        var body = "Error in UserController: " + e.getMessage();
+        return handleExceptionInternal(e, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
-    // Обработчик исключений для UserService
     @ExceptionHandler(UserServiceException.class)
-    public ResponseEntity<String> handleUserServiceException(UserServiceException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка в UserService: " + e.getMessage());
+    protected ResponseEntity<Object> handleUserServiceException(UserServiceException e, WebRequest request) {
+        log.error("Error in UserService", e);
+        var body = "Error in UserService: " + e.getMessage();
+        return handleExceptionInternal(e, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
+    @Override
+    protected @NotNull ResponseEntity<Object> handleExceptionInternal(@NotNull Exception ex, Object body, @NotNull HttpHeaders headers, @NotNull HttpStatus status, @NotNull WebRequest request) {
+        log.error("An error has occurred: ", ex);
+        log.info(request.getHeader("User-Agent"));
+        log.info(request.getDescription(true));
+        log.info(request.isSecure());
+        return super.handleExceptionInternal(ex, body, headers, status, request);
     }
 }

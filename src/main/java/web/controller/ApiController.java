@@ -14,6 +14,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import web.exception.AdminControllerException;
 import web.exception.AuthControllerException;
 import web.exception.LogoutControllerException;
+import web.exception.UserControllerException;
 import web.model.Car;
 import web.model.RoleEnum;
 import web.model.User;
@@ -33,7 +34,6 @@ public class ApiController {
 
     private final UserService userService;
 
-
     @Autowired
     public ApiController(UserService userService) {
         this.userService = userService;
@@ -50,7 +50,7 @@ public class ApiController {
             }
             return ResponseEntity.ok(responseCreator("Car retrieved successfully.", car));
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при получении машины.", e);
+            throw new AdminControllerException("Error when receiving a user car.", e);
         }
     }
 
@@ -64,7 +64,7 @@ public class ApiController {
             }
             return ResponseEntity.ok(responseCreator("Roles retrieved successfully.", roles));
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при получении ролей.", e);
+            throw new UserControllerException("Error when getting user roles.", e);
         }
     }
 
@@ -78,7 +78,7 @@ public class ApiController {
             User savedUser = userService.saveUser(user, role);
             return ResponseEntity.ok(responseCreator("User saved successfully.", savedUser));
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при сохранении пользователя.", e);
+            throw new AdminControllerException("An error while saving the user.", e);
         }
     }
 
@@ -90,7 +90,7 @@ public class ApiController {
             userService.saveOrUpdateCar(userId, car);
             return ResponseEntity.ok("Car saved successfully.");
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при сохранении машины.", e);
+            throw new AdminControllerException("An error while saving the car.", e);
         }
     }
 
@@ -102,7 +102,7 @@ public class ApiController {
             userService.updateUser(user);
             return ResponseEntity.ok("User id: " + user.getId() + " update successfully.");
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при обновлении пользователя.", e);
+            throw new AdminControllerException("Error when updating the user.", e);
         }
     }
 
@@ -119,7 +119,7 @@ public class ApiController {
 
             return ResponseEntity.ok("User roles updated successfully.");
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при обновлении ролей.", e);
+            throw new AdminControllerException("An error when updating roles.", e);
         }
     }
 
@@ -131,7 +131,7 @@ public class ApiController {
             userService.deleteById(userId);
             return ResponseEntity.ok("User id: " + userId + " deleted successfully");
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при удалении пользователя.", e);
+            throw new AdminControllerException("Error when removing the user.", e);
         }
     }
 
@@ -143,7 +143,7 @@ public class ApiController {
             userService.deleteCar(userId);
             return ResponseEntity.ok("Car deleted successfully");
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при удалении машины.", e);
+            throw new AdminControllerException("Error when removing the car.", e);
         }
     }
 
@@ -155,7 +155,7 @@ public class ApiController {
             userService.resetTable();
             return ResponseEntity.ok("Reset table successfully");
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при очищении таблицы.", e);
+            throw new AdminControllerException("Error when cleaning the table.", e);
         }
     }
 
@@ -167,7 +167,7 @@ public class ApiController {
             userService.recreateTable();
             return ResponseEntity.ok("Recreate table successfully");
         } catch (Exception e) {
-            throw new AdminControllerException("Ошибка при пересоздании таблицы.", e);
+            throw new AdminControllerException("Error in the reconstruction of the table.", e);
         }
     }
 

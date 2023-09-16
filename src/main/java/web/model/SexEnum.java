@@ -2,9 +2,7 @@ package web.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.ToString;
 
-@ToString
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum SexEnum {
 
@@ -31,5 +29,13 @@ public enum SexEnum {
             }
         }
         throw new IllegalArgumentException("Invalid value for SexEnum: " + value);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SexEnum{");
+        sb.append("displayName='").append(displayName).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

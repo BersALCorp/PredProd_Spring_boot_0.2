@@ -6,10 +6,10 @@ public class AuthControllerException extends RuntimeException {
     }
 
     public AuthControllerException(String message) {
-        super("Error in AuthController: " + message);
+        super(message);
     }
 
     public AuthControllerException(String message, Throwable cause) {
-        super("Error in AuthController: " + message, cause);
+        super(message, cause);
     }
 }
