@@ -1,22 +1,21 @@
 package web.security;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import web.model.RoleEnum;
-import web.model.User;
+import web.models.Role;
+import web.models.User;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-@Log4j2
+@Slf4j
 public class UserDetailsImpl implements UserDetails {
 
     private final String login;
     private final String password;
-    private final Set<RoleEnum> roles;
+    private final Set<Role> roles;
 
     public UserDetailsImpl(User user) {
         this.login = user.getLogin();
@@ -28,8 +27,8 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.name()))
-                .collect(Collectors.toList());
+                .map(role -> new SimpleGrantedAuthority(role.getRoleType().name()))
+                .toList();
     }
 
     @Override

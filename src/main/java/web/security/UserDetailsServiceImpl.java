@@ -1,15 +1,15 @@
 package web.security;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import web.model.User;
-import web.repository.UserRepository;
+import web.models.User;
+import web.repositories.UserRepository;
 
-@Log4j2
+@Slf4j
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("loadUserByUsername called with username: {}", username);
-        User user = userRepository.findByLogin(username);
+        User user = userRepository.getByLogin(username);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
