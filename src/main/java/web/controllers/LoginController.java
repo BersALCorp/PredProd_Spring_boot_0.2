@@ -9,9 +9,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import web.exceptions.customs.LoginControllerException;
+
+import java.util.Base64;
 
 
 @Controller
@@ -37,14 +39,18 @@ public class LoginController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Authentication> login(@RequestParam String username,
-                                                @RequestParam String password) {
+    public ResponseEntity<Authentication> login(@RequestHeader("Authorization") String authorizationHeader) {
         try {
+            String token = authorizationHeader.substring(6);
+            byte[] decodedBytes = Base64.getDecoder().decode(token);
+            String decodedToken = new String(decodedBytes);
+
+            String[] credentials = decodedToken.split(":");
+            String username = credentials[0];
+            String password = credentials[1];
+
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            username,
-                            password)
-            );
+                    new UsernamePasswordAuthenticationToken(username, password));
 
             return ResponseEntity.ok(authentication);
         } catch (Exception e) {
