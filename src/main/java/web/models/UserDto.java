@@ -5,13 +5,11 @@ import web.models.enums.RoleType;
 public class UserDto {
     private String login;
     private String password;
-    RoleType role;
 
     public UserDto(){}
-    public UserDto(String login, String password, RoleType role) {
+    public UserDto(String login, String password) {
         this.login = login;
         this.password = password;
-        this.role = role;
     }
 
     public String getLogin() {
@@ -28,13 +26,5 @@ public class UserDto {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public RoleType getRole() {
-        return role;
-    }
-
-    public void setRole(RoleType role) {
-        this.role = role;
     }
 }

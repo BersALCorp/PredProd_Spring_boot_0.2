@@ -10,13 +10,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import web.exceptions.customs.ApiControllerException;
 import web.exceptions.customs.LoginControllerException;
-import web.models.*;
+import web.models.User;
+import web.models.UserDto;
 import web.models.enums.RoleType;
 import web.services.interfaces.UserService;
 
-import java.util.Arrays;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static web.models.enums.RoleType.isValidRole;
 
 @Slf4j
 @RestController
@@ -30,33 +34,35 @@ public class ApiController {
         log.info("ApiController created");
     }
 
-    @GetMapping("/getCar/{userId}")
-    public ResponseEntity<Car> getCar(@PathVariable("userId") long userId) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR', 'USER')")
+    @GetMapping("/getAllUsers")
+    public ResponseEntity<List<User>> getCar(HttpServletRequest request) {
         try {
-            log.info("Trying get car by User with id: {} .", userId);
-            Car car = userService.getCarByUserId(userId);
-            return ResponseEntity.ok(car);
+            log.info("Trying to get all users.");
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(userService.getAllUsersWithRoles(request));
         } catch (Exception e) {
-            throw new ApiControllerException("Error when receiving a user car.", e);
+            throw new ApiControllerException("Error when receiving all users.", e);
         }
     }
 
-    @GetMapping("/getRoles/{userId}")
-    public ResponseEntity<Set<RoleType>> getRoles(@PathVariable("userId") long userId) {
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping("/getUser/{userId}")
+    public ResponseEntity<User> getUser(@PathVariable("userId") long userId) {
         try {
-            log.info("Trying to get roles from User with id: {} .", userId);
-            Set<RoleType> roles = userService.getRolesTypeByUserId(userId);
-            if (roles == null) {
-                return ResponseEntity.ok(null);
-            }
-            return ResponseEntity.ok(roles);
+            log.info("Trying to get all users.");
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(userService.getUsers(userId));
         } catch (Exception e) {
-            throw new ApiControllerException("Error when getting user roles.", e);
+            throw new ApiControllerException("Error when receiving all users.", e);
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PostMapping("/saveUser")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> saveUser(@RequestBody CombinedData combinedData) {
         try {
             log.info("Trying to save user with data: {} .", combinedData);
@@ -70,39 +76,16 @@ public class ApiController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/saveCar")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void saveOrUpdateCar(@RequestParam("userId") long userId, @RequestBody Car car) {
-        try {
-            log.info("Trying to save car for user with id: {} .", userId);
-            userService.saveOrUpdateCar(userId, car);
-        } catch (Exception e) {
-            throw new ApiControllerException("An error occurred while saving the car.", e);
-        }
-    }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/updateUser")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateUser(@RequestBody User user) {
+    public void updateUser(@RequestBody CombinedData date) {
         try {
-            log.info("Trying to update user with id: {} .", user.getId());
-            userService.updateUser(user);
+            log.info("Trying to update user with id: {} .", date.getUser().getId());
+            userService.updateUser(date.getUser(), date.getRoles());
         } catch (Exception e) {
             throw new ApiControllerException("An error occurred while updating the user.");
-        }
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/updateRoles/{userId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateRoles(@PathVariable("userId") long userId, @RequestBody String[] roles) {
-        try {
-            log.info("Trying to update roles to user with id: {} .", userId);
-            userService.updateRole(userId, roles);
-        } catch (Exception e) {
-            throw new ApiControllerException("An error when updating roles.", e);
         }
     }
 
@@ -119,18 +102,6 @@ public class ApiController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/deleteCar/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteCar(@PathVariable("userId") long userId) {
-        try {
-            log.info("Trying to delete car with id: {} .", userId);
-            userService.deleteCar(userId);
-        } catch (Exception e) {
-            throw new ApiControllerException("Error when removing the car.", e);
-        }
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/resetTable")
     @ResponseStatus(HttpStatus.OK)
     public void resetTable() {
@@ -139,18 +110,6 @@ public class ApiController {
             userService.resetTable();
         } catch (Exception e) {
             throw new ApiControllerException("Error when cleaning the table.", e);
-        }
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/recreateTable")
-    @ResponseStatus(HttpStatus.OK)
-    public void recreateTable() {
-        try {
-            log.info("Trying to recreate table.");
-            userService.recreateTable();
-        } catch (Exception e) {
-            throw new ApiControllerException("Error in the reconstruction of the table.", e);
         }
     }
 
@@ -185,12 +144,14 @@ public class ApiController {
 
     private UserDto createUserDto(String username, String password) {
         log.info("Creating user: {}", username);
-        return new UserDto(username, password, RoleType.ROLE_ADMIN);
+        return new UserDto(username, password);
     }
 
     static class CombinedData {
         private User user;
         private String[] roles;
+
+        Set<RoleType> roleSet = new HashSet<>();
 
         CombinedData() {
         }
@@ -204,7 +165,12 @@ public class ApiController {
         }
 
         public Set<RoleType> getRoles() {
-            return Arrays.stream(roles).map(RoleType::valueOf).collect(Collectors.toSet());
+            for (int i = 0; i < roles.length; i++) {
+                if (isValidRole(roles[i])) {
+                    roleSet.add(RoleType.valueOf(roles[i]));
+                }
+            }
+            return roleSet;
         }
 
         public void setRoles(String[] roles) {

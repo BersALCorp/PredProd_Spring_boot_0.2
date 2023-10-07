@@ -3,6 +3,7 @@ package web.services.interfaces;
 import web.models.*;
 import web.models.enums.RoleType;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Set;
 
@@ -10,31 +11,23 @@ public interface UserService {
 
     void registerUser(UserDto userDto);
 
+    User saveUser(User user, Set<RoleType> roles);
+
     List<User> getAllUsersSorted();
-
-    void saveOrUpdateCar(long userId, Car car);
-
-    Car getCarByUserId(long userId);
 
     User getUserById(long userId);
 
-    Set<Role> getRolesByUserId(long userId);
-
-    Set<RoleType> getRolesTypeByUserId(long userId);
-
-    void updateRole(long userId, String[] rolesEnum);
-
-    void updateUser(User user);
+    void updateUser(User user, Set<RoleType> roles);
 
     void deleteUserById(long userId);
 
-    void deleteCar(long userId);
+    User getUserByLogin(String login);
 
     void resetTable();
 
-    void recreateTable();
+    boolean canEdit(HttpServletRequest request);
 
-    User getUserByLogin(String login);
+    List<User> getAllUsersWithRoles(HttpServletRequest request);
 
-    User saveUser(User user, Set<RoleType> roles);
+    User getUsers(long userId);
 }

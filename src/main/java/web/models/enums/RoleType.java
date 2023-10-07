@@ -7,17 +7,25 @@ import org.springframework.security.core.GrantedAuthority;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum RoleType implements GrantedAuthority {
 
-    ROLE_ADMIN("ROLE_ADMIN"),
-    ROLE_USER("ROLE_USER"),
-    ROLE_MANAGER("ROLE_MANAGER"),
-    ROLE_MODERATOR("ROLE_MODERATOR"),
-    ROLE_GUEST("ROLE_GUEST");
+    USER("USER"),
+    ADMIN("ADMIN"),
+    MANAGER("MANAGER"),
+    MODERATOR("MODERATOR");
 
 
     private final String displayName;
 
     RoleType(String displayName) {
         this.displayName = displayName;
+    }
+
+    public static boolean isValidRole(String role) {
+        for (RoleType roleType : values()) {
+            if (roleType.name().equalsIgnoreCase(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getDisplayName() {

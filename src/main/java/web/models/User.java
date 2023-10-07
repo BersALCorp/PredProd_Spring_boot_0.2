@@ -18,19 +18,18 @@ import java.util.Set;
 @NamedEntityGraph(name = "User.rolesAndCar",
         attributeNodes = {
                 @NamedAttributeNode(value = "roles"),
-                @NamedAttributeNode(value = "car")
         }
 )
 @Slf4j
 public class User {
-    @Transient
-    boolean toStringCalled;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @JsonProperty("firstName")
+    @Column(name = "firstName")
     private String firstName;
     @JsonProperty("lastName")
+    @Column(name = "lastName")
     private String lastName;
     @JsonProperty("age")
     private int age;
@@ -45,21 +44,14 @@ public class User {
     @JsonProperty("sex")
     private SexEnum sex;
 
-    @ManyToMany
-            (cascade = {
-                    CascadeType.MERGE
-            })
-    @JoinTable(name = "user_role",
+    @ManyToMany(cascade = {CascadeType.MERGE})
+    @JoinTable(
+            name = "user_role",
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id")}
     )
     private Set<Role> roles = new HashSet<>();
 
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "car_id")
-    @JsonProperty("car")
-    private Car car;
 
     public User() {
     }
@@ -99,22 +91,8 @@ public class User {
         sb.append(", email='").append(email).append('\'');
         sb.append(", role='");
         roles.forEach(r -> sb.append(r.getRoleType()).append('\''));
-        if (toStringCalled) {
-            toStringCalled = false;
-        } else {
-            if (car != null) car.toStringCalled = true;
-            sb.append(", car=").append(car);
-        }
         sb.append('}');
         return sb.toString();
-    }
-
-    public boolean isToStringCalled() {
-        return toStringCalled;
-    }
-
-    public void setToStringCalled(boolean toStringCalled) {
-        this.toStringCalled = toStringCalled;
     }
 
     public Long getId() {
@@ -187,14 +165,6 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
-    }
-
-    public Car getCar() {
-        return car;
-    }
-
-    public void setCar(Car car) {
-        this.car = car;
     }
 
     public static class SexEnumDeserializer extends JsonDeserializer<SexEnum> {

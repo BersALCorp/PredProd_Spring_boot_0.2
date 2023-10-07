@@ -34,7 +34,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<Object> handleException(RuntimeException e, WebRequest request, String controllerName) {
         log.error("Error in " + controllerName + ": " + e.getMessage());
-        var body = "Error in " + controllerName + ": " + e.getMessage();
+        var body = e.getCause().getMessage();
         return handleExceptionInternal(e, body, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 

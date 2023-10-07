@@ -45,13 +45,13 @@
 <form action="/login" method="post">
     <div>
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" autocomplete="username">
+        <input type="text" id="Username" name="username" autocomplete="username">
     </div>
     <div>
-        <label for="loginPassword">Password:</label>
-        <input type="password" id="loginPassword" name="password" autocomplete="current-password">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" autocomplete="current-password">
     </div>
-    <button type="submit" onclick="addAuthorizationHeader()">Login</button>
+    <button type="submit">Login</button>
 </form>
 
 <h2>Registration</h2>
@@ -71,26 +71,5 @@
     <button type="submit">Register</button>
 </form>
 </body>
-<script>
-    function addAuthorizationHeader() {
-        var username = document.getElementById("username").value;
-        var password = document.getElementById("loginPassword").value;
-        var authorizationHeader = "Basic " + btoa(username + ":" + password);
-
-        fetch("/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": authorizationHeader
-            }
-        })
-            .then( function (response) {
-                return response.json();
-            })
-            .catch(function (error) {
-                console.error("Ошибка аутентификации:", error);
-            });
-    }
-</script>
 
 </html>

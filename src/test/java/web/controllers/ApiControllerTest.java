@@ -33,7 +33,7 @@ class ApiControllerTest {
 
     String baseUrl = "http://localhost:8082";
 
-    private static Long userId;
+    private static long userId;
 
 
     @Test
@@ -49,7 +49,6 @@ class ApiControllerTest {
     @Order(2)
     @WithUserDetails("admin")
     void testSaveUser() throws Exception {
-        // Arrange
         Map<String, Object> user = new LinkedHashMap<>();
         user.put("firstName", "testName");
         user.put("lastName", "testLastName");
@@ -58,7 +57,7 @@ class ApiControllerTest {
         user.put("login", "testLogin");
         user.put("password", "testPassword");
         user.put("email", "testEmail");
-        String[] roles = {"ROLE_ADMIN"};
+        String[] roles = {"ADMIN", "USER"};
         Map<String, Object> combinedData = new HashMap<>();
         combinedData.put("user", user);
         combinedData.put("roles", roles);
@@ -81,137 +80,75 @@ class ApiControllerTest {
         System.out.println(userId);
     }
 
-
     @Test
     @Order(3)
     @WithUserDetails("admin")
-    void testSaveCar() throws Exception {
-        Map<String, String> car = new LinkedHashMap<>();
-        car.put("brand", "Toyota");
-        car.put("series", "Corolla");
-        car.put("model", "3");
-        car.put("color", "White");
-        System.out.println(userId);
+    void testUpdateUser() throws Exception {
+        Map<String, String> user = new HashMap<>();
 
-        mockMvc.perform(post(baseUrl + "/api/saveCar")
-                        .param("userId", Long.toString(userId))
+        user.put("id", Long.toString(userId));
+        user.put("firstName", "testName2");
+        user.put("lastName", "testLastName2");
+        user.put("sex", "FEMALE");
+        user.put("age", "52");
+        user.put("login", "testLogin2");
+        user.put("password", "testPassword2");
+        user.put("email", "testEmail2");
+        String[] roles = {"ADMIN"};
+        Map<String, Object> combinedData = new HashMap<>();
+        combinedData.put("user", user);
+        combinedData.put("roles", roles);
+
+        mockMvc.perform(put(baseUrl + "/api/updateUser")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(car)))
-                .andExpect(status().isCreated());
+                        .content(new ObjectMapper().writeValueAsString(combinedData)))
+                .andExpect(status().isAccepted());
     }
 
     @Test
     @Order(4)
     @WithUserDetails("admin")
-    void testGetCarCheck1() throws Exception {
-        mockMvc.perform(get(baseUrl + "/api/getCar/{userId}", userId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.brand").value("Toyota"))
-                .andExpect(jsonPath("$.model").value("3"))
-                .andExpect(jsonPath("$.series").value("Corolla"))
-                .andExpect(jsonPath("$.color").value("White"));
+    void testUpdateRoles() throws Exception {
+        Map<String, String> user = new HashMap<>();
+        user.put("id", Long.toString(userId));
+        user.put("firstName", "testName2");
+        user.put("lastName", "testLastName2");
+        user.put("sex", "FEMALE");
+        user.put("age", "52");
+        user.put("login", "testLogin2");
+        user.put("password", "testPassword2");
+        user.put("email", "testEmail2");
+        String[] roles = {"ADMIN", "USER", "MODERATOR"};
+        Map<String, Object> combinedData = new HashMap<>();
+        combinedData.put("user", user);
+        combinedData.put("roles", roles);
+
+
+        mockMvc.perform(put(baseUrl + "/api/updateUser")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(combinedData)))
+                .andExpect(status().isAccepted());
     }
+
 
     @Test
     @Order(5)
     @WithUserDetails("admin")
-    void testUpdateCar() throws Exception {
-        Map<String, String> car = new LinkedHashMap<>();
-        car.put("brand", "Mercedes-Benz");
-        car.put("series", "SLK");
-        car.put("model", "500");
-        car.put("color", "Red");
-        System.out.println(userId);
-
-        mockMvc.perform(post(baseUrl + "/api/saveCar")
-                        .param("userId", Long.toString(userId))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(car)))
-                .andExpect(status().isCreated());
+    void testCheckUpdates() throws Exception {
+        mockMvc.perform(get(baseUrl + "/api/getUser/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("testName2"))
+                .andExpect(jsonPath("$.lastName").value("testLastName2"))
+                .andExpect(jsonPath("$.age").value("52"))
+                .andExpect(jsonPath("$.login").value("testLogin2"))
+                .andExpect(jsonPath("$.email").value("testEmail2"))
+                .andExpect(jsonPath("$.roles").isArray())
+                .andExpect(jsonPath("$.roles").value(hasSize(3)));
     }
 
     @Test
     @Order(6)
-    @WithUserDetails("admin")
-    void testGetCarCheck2() throws Exception {
-        mockMvc.perform(get(baseUrl + "/api/getCar/{userId}", userId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.brand").value("Mercedes-Benz"))
-                .andExpect(jsonPath("$.model").value("500"))
-                .andExpect(jsonPath("$.series").value("SLK"))
-                .andExpect(jsonPath("$.color").value("Red"));
-    }
-
-    @Test
-    @Order(7)
-    @WithUserDetails("admin")
-    void testUpdateUser() throws Exception {
-        // Arrange
-        Map<String, String> userMap = new LinkedHashMap<>();
-        userMap.put("id", Long.toString(userId));
-        userMap.put("firstName", "testName2");
-        userMap.put("lastName", "testLastName2");
-        userMap.put("sex", "FEMALE");
-        userMap.put("age", "52");
-        userMap.put("login", "testLogin2");
-        userMap.put("password", "testPassword2");
-        userMap.put("email", "testEmail2");
-
-        mockMvc.perform(put(baseUrl + "/api/updateUser")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(userMap)))
-                .andExpect(status().isAccepted());
-    }
-
-    @Test
-    @Order(8)
-    @WithUserDetails("admin")
-    void testGetRoles1() throws Exception {
-        mockMvc.perform(get(baseUrl + "/api/getRoles/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0]").exists());
-    }
-
-    @Test
-    @Order(9)
-    @WithUserDetails("admin")
-    void testUpdateRoles() throws Exception {
-        String[] roles = {"ROLE_ADMIN","ROLE_USER"};
-
-        mockMvc.perform(put(baseUrl + "/api/updateRoles/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(roles)))
-                .andExpect(status().isAccepted());
-    }
-
-
-    @Test
-    @Order(10)
-    @WithUserDetails("admin")
-    void testGetRoles2() throws Exception {
-        mockMvc.perform(get(baseUrl + "/api/getRoles/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0]").exists())
-                .andExpect(jsonPath("$[1]").exists());
-    }
-
-    @Test
-    @Order(11)
-    @WithUserDetails("admin")
-    void testDeleteCar() throws Exception {
-        mockMvc.perform(delete(baseUrl + "/api/deleteCar/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @Order(12)
     @WithUserDetails("admin")
     void testDeleteUser() throws Exception {
         mockMvc.perform(delete(baseUrl + "/api/deleteUser/{userId}", userId)
@@ -220,9 +157,9 @@ class ApiControllerTest {
     }
 
     @Test
-    @Order(13)
+    @Order(7)
     void testLogout() throws Exception {
-        mockMvc.perform(post(baseUrl + "/logout")
+        mockMvc.perform(post(baseUrl + "/api/logout")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isFound());
     }

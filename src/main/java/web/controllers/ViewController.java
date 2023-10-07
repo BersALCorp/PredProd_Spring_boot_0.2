@@ -27,36 +27,6 @@ public class ViewController {
         log.info("ViewController created");
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
-    @GetMapping("user")
-    public String getCurrentUser(HttpServletRequest request, Model model) {
-        try {
-            List<User> userList = List.of(
-                    userService.getUserByLogin(
-                            request.getUserPrincipal().getName()
-                    )
-            );
-            model.addAttribute("userList", userList);
-            return "user";
-        } catch (Exception e) {
-            throw new ViewControllerException("Error when receiving a user.", e);
-        }
-    }
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    @GetMapping("manager")
-    public String showUserTable(Model model) {
-        try {
-            log.info("showUserTable was been called");
-            List<User> userList = userService.getAllUsersSorted();
-            model.addAttribute("userList", userList);
-            return "manager_table";
-        } catch (Exception e) {
-            throw new ViewControllerException("Error when receiving a manager table.", e);
-        }
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("admin")
     public String showAdminTable(Model model) {
         try {

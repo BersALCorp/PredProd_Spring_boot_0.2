@@ -23,14 +23,14 @@ public class SuccessUserHandler implements AuthenticationSuccessHandler {
     ) {
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
         try {
-            if (roles.contains("ROLE_ADMIN")) {
+            if (roles.contains("ADMIN")) {
                 response.sendRedirect("/admin/");
                 log.info("login success as {} with role ADMIN", authentication.getName());
-            } else if (roles.contains("ROLE_USER")) {
-                response.sendRedirect("/user/");
+            } else if (roles.contains("USER")) {
+                response.sendRedirect("/admin/");
                 log.info("login success as {} with role USER", authentication.getName());
-            } else if (roles.contains("ROLE_MANAGER")) {
-                response.sendRedirect("/manager/");
+            } else if (roles.contains("MANAGER")) {
+                response.sendRedirect("/admin/");
                 log.info("login success as {} with role MANAGER", authentication.getName());
             }
         } catch (IOException e) {

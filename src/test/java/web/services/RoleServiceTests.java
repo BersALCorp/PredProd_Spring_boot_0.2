@@ -29,7 +29,7 @@ class RoleServiceTests {
 
     @Test
     void testGetRoleByType() {
-        RoleType roleType = RoleType.ROLE_ADMIN;
+        RoleType roleType = RoleType.ADMIN;
         Role expectedRole = new Role();
         expectedRole.setRoleType(roleType);
 
@@ -43,7 +43,7 @@ class RoleServiceTests {
 
     @Test
     void testFindByRoleType() {
-        RoleType roleType = RoleType.ROLE_ADMIN;
+        RoleType roleType = RoleType.ADMIN;
         Role expectedRole = new Role();
         expectedRole.setRoleType(roleType);
 
@@ -58,7 +58,7 @@ class RoleServiceTests {
 
     @Test
     void testFindByRoleType_roleNotFound() {
-        RoleType roleType = RoleType.ROLE_ADMIN;
+        RoleType roleType = RoleType.ADMIN;
 
         when(roleRepository.findByRoleType(roleType)).thenReturn(Optional.empty());
 
@@ -116,10 +116,9 @@ class RoleServiceTests {
 
     @Test
     void testSaveAll() {
-        Role newRole1 = new Role(RoleType.ROLE_USER);
-        Role newRole2 = new Role(RoleType.ROLE_ADMIN);
-        Role newRole3 = new Role(RoleType.ROLE_GUEST);
-        Set<Role> roles = Set.of(newRole1, newRole2, newRole3);
+        Role newRole1 = new Role(RoleType.USER);
+        Role newRole2 = new Role(RoleType.ADMIN);
+        Set<Role> roles = Set.of(newRole1, newRole2);
 
         roleService.saveAll(roles);
 

@@ -32,7 +32,7 @@ public class InitializationService {
 
     @PostConstruct
     public void initialize() {
-        Set<RoleType> rolesType = Set.of(RoleType.ROLE_ADMIN, RoleType.ROLE_USER, RoleType.ROLE_MANAGER, RoleType.ROLE_MODERATOR, RoleType.ROLE_GUEST);
+        Set<RoleType> rolesType = Set.of(RoleType.ADMIN, RoleType.USER, RoleType.MANAGER, RoleType.MODERATOR);
         rolesType.forEach(this::createRole);
 
         Set<String> roles = Set.of("admin", "user", "manager");
@@ -45,11 +45,13 @@ public class InitializationService {
 
         Role role;
         switch (name) {
-            case "admin" -> role = roleRepository.getByRoleType(RoleType.ROLE_ADMIN);
-            case "manager" -> role = roleRepository.getByRoleType(RoleType.ROLE_MANAGER);
-            case "moderator" -> role = roleRepository.getByRoleType(RoleType.ROLE_MODERATOR);
-            case "guest" -> role = roleRepository.getByRoleType(RoleType.ROLE_GUEST);
-            default -> role = roleRepository.getByRoleType(RoleType.ROLE_USER);
+            case "admin" -> role = roleRepository.getByRoleType(RoleType.ADMIN);
+            case "manager" -> role = roleRepository.getByRoleType(RoleType.MANAGER);
+            case "moderator" -> role = roleRepository.getByRoleType(RoleType.MODERATOR);
+            case "user" -> role = roleRepository.getByRoleType(RoleType.USER);
+            default -> {
+                return;
+            }
         }
 
         User user = new User(name, name, SexEnum.UNDEFINED, 0, name, name, name + "@mail.com");
