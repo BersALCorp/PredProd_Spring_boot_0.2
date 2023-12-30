@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>LOGIN</title>
+    <base href="/">
+    <style>
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            margin: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 24px;
+        }
+
+        div {
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<h2>Login</h2>
+<form action="/login" method="post">
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" autocomplete="username">
+    </div>
+    <div>
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" name="password" autocomplete="current-password">
+    </div>
+    <button type="submit" onclick="addAuthorizationHeader()">Login</button>
+</form>
+
+<h2>Registration</h2>
+<form action="api/register" method="post">
+    <div>
+        <label for="regUsername">Username:</label>
+        <input type="text" id="regUsername" name="regUsername" autocomplete="username">
+    </div>
+    <div>
+        <label for="regPassword">Password:</label>
+        <input type="password" id="regPassword" name="regPassword" autocomplete="new-password">
+    </div>
+    <div>
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password">
+    </div>
+    <button type="submit">Register</button>
+</form>
+</body>
+<script>
+    function addAuthorizationHeader() {
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("loginPassword").value;
+        var authorizationHeader = "Basic " + btoa(username + ":" + password);
+
+        fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": authorizationHeader
+            }
+        })
+            .then( function (response) {
+                return response.json();
+            })
+            .catch(function (error) {
+                console.error("Ошибка аутентификации:", error);
+            });
+    }
+</script>
+
+</html>

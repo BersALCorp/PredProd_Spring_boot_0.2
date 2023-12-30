@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      lang="ru" xml:lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <title>User Management</title>
+    <base href="/">
+</head>
+<body>
+<h1>User Management</h1>
+<button id="logoutButton" onclick="logout()">Logout</button>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Gender</th>
+        <th>Years old</th>
+        <th>Login</th>
+        <th>Password</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Car</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <!--/*@thymesVar id="userList" type="web.models.User"*/-->
+
+    <tr th:each="user : ${userList}" th:if="${user != null}">
+        <td>
+            <label for="id"></label>
+            <input type="text" id="id" name="id" th:value="${user.id}" disabled>
+        </td>
+        <td>
+            <label for="firstName"></label>
+            <input type="text" id="firstName" name="firstName" th:value="${user.firstName}" disabled>
+        </td>
+        <td>
+            <label for="lastName"></label>
+            <input type="text" id="lastName" name="lastName" th:value="${user.lastName}" disabled>
+        </td>
+        <td>
+            <label for="sex"></label>
+            <select id="sex" name="sex" onchange="updateSelectedSex(this)" disabled>
+                <option th:each="sex : ${T(web.models.enums.SexEnum).values()}"
+                        th:value="${sex.name()}" th:text="${sex.displayName}"
+                        th:selected="${sex == user.sex}"></option>
+            </select>
+        </td>
+        <td>
+            <label for="age"></label>
+            <input type="number" id="age" name="age" min="0" step="1" required th:value="${user.age}" disabled>
+        </td>
+        <td>
+            <label for="login"></label>
+            <input type="text" id="login" name="login" th:value="${user.login}" disabled>
+        </td>
+        <td>
+            <label for="password"></label>
+            <input type="password" id="password" name="password" th:value="${user.password}" disabled>
+        </td>
+        <td>
+            <label for="email"></label>
+            <input type="email" id="email" name="email" th:value="${user.email}" disabled>
+        </td>
+        <td>
+            <button onclick="roleButton(this)">VIEW ROLE</button>
+        </td>
+        <td>
+            <button th:if="${user.car}" onclick="carButton(this)">VIEW</button>
+            <button th:unless="${user.car}" onclick="carButton(this)"> ADD</button>
+        </td>
+        <td>
+            <button onclick="edit(this)">EDIT</button>
+            <button onclick="updateUser(this)" style="display: none">SAVE</button>
+            <button onclick="deleteUser(this)">DELETE</button>
+        </td>
+    </tr>
+    </tbody>
+
+    <tbody id="userTableBody">
+    </tbody>
+
+    <tbody id="addUserRow">
+    <tr>
+        <td>NEW PERSON</td>
+        <td>
+            <label for="newFirstName"></label>
+            <input type="text" id="newFirstName" name="firstName"
+                   th:value="${newFirstName != null ? newFirstName : ''}">
+        </td>
+        <td>
+            <label for="newLastName"></label>
+            <input type="text" id="newLastName" name="lastName" th:value="${newLastName != null ? newLastName : ''}">
+        </td>
+        <td>
+            <label for="newSex"></label>
+            <select id="newSex" name="sex" onchange="updateSelectedSex(this)">
+                <option th:each="sex : ${T(web.models.enums.SexEnum).values()}"
+                        th:value="${sex.name()}" th:text="${sex.displayName}"></option>
+            </select>
+        </td>
+        <td>
+            <label for="newAge"></label>
+            <input type="number" id="newAge" name="age" min="0" step="1" th:value="${newAge != null ? newAge : '0'}">
+        </td>
+        <td>
+            <label for="newLogin"></label>
+            <input type="text" id="newLogin" name="login" th:value="${newLogin != null ? newLogin : ''}">
+        </td>
+        <td>
+            <label for="newPassword"></label>
+            <input type="password" id="newPassword" name="password"
+                   th:value="${newPassword != null ? newPassword : ''}">
+        </td>
+        <td>
+            <label for="newEmail"></label>
+            <input type="email" id="newEmail" name="email" th:value="${newEmail != null ? newEmail : ''}">
+        </td>
+        <td>
+            <label for="newRole"></label>
+            <select id="newRole" name="role" onchange="updateSelectedRole2(this)" selectedIndex="-1">
+                <option value="" disabled selected>SELECT ROLE</option> <!-- Заглушка "Select role" -->
+                <option th:each="role : ${T(web.models.enums.RoleType).values()}"
+                        th:value="${role.name()}" th:text="${role.displayName}"></option>
+            </select>
+        </td>
+        <td>
+        </td>
+        <td>
+            <button onclick="saveUser(this); return false;">ADD USER</button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+        <td>
+        <td>
+        <td>
+            <button onclick="resetTable()">RESET TABLE</button>
+        </td>
+        <td>
+            <button onclick="recreateTable()">RECREATE TABLE</button>
+        </td>
+    </tr>
+</table>
+
+<div id="popup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup()">&times;</span>
+
+    </div>
+</div>
+
+<script>
+    var selectedRoles = []
+
+    function updateSelectedRole2(selectElement) {
+        var selectedRole = selectElement.value;
+        var parentRow = selectElement.parentNode.parentNode;
+        var newSelectRow = document.createElement('tr');
+        var newSelectCell = document.createElement('td');
+        var newSelect = document.createElement('select');
+
+        newSelect.name = 'role';
+        newSelect.onchange = function () {
+            updateSelectedRole(this);
+        };
+
+        newSelectCell.appendChild(newSelect);
+
+        newSelectRow.appendChild(document.createElement('td'));
+        newSelectRow.appendChild(document.createElement('td'));
+        newSelectRow.appendChild(document.createElement('td'));
+        newSelectRow.appendChild(document.createElement('td'));
+        newSelectRow.appendChild(document.createElement('td'));
+        newSelectRow.appendChild(document.createElement('td'));
+        newSelectRow.appendChild(document.createElement('td'));
+        newSelectRow.appendChild(document.createElement('td'));
+        newSelectRow.appendChild(newSelectCell);
+
+        var nextRow = parentRow.nextElementSibling;
+        parentRow.parentNode.insertBefore(newSelectRow, nextRow);
+
+        Array.from(selectElement.options).forEach(function (option) {
+            var newOption = new Option(option.text, option.value);
+            newSelect.add(newOption);
+        });
+
+        newSelect.value = selectedRole;
+        selectedRoles.push(selectedRole);
+        selectElement.value = '';
+    }
+
+
+    function saveUser(button) {
+        const row = button.closest('tr');
+        const inputs = row.querySelectorAll('input, select');
+        const user = {};
+
+        inputs.forEach(input => {
+            user[input.name] = input.value;
+            input.setAttribute('disabled', 'disabled');
+        });
+
+        console.log(selectedRoles);
+
+        const combinedData = {
+            user: user,
+            roles: selectedRoles
+        }
+
+        fetch('api/saveUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(combinedData)
+
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Request failed');
+                }
+
+            })
+            .then(responseData => {
+                const newUser = responseData;
+
+                console.log('User saved:', newUser);
+
+                const newUserRow = createTableRow(newUser);
+                const tableBody = document.getElementById('userTableBody');
+                const addUserRow = document.getElementById('addUserRow');
+                tableBody.appendChild(newUserRow);
+                clearAddRowInputs(addUserRow);
+                enableInputs(addUserRow);
+            })
+            .catch(error => {
+                console.error('Error save user:', error);
+            });
+        selectedRoles = [];
+    }
+
+    function updateUser(button) {
+        const row = button.closest('tr');
+        const inputs = row.querySelectorAll('input, select');
+        const data = {};
+
+        inputs.forEach(input => {
+            data[input.name] = input.value;
+            input.setAttribute('disabled', 'disabled');
+        })
+        button.style.display = 'none';
+        button.previousElementSibling.style.display = 'inline-block';
+        fetch('api/updateUser', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Update successful');
+                } else {
+                    throw new Error('Request failed');
+                }
+            })
+            .catch(error => {
+                console.error('Update error:', error);
+            });
+
+    }
+
+    function saveCar(userId, carRow) {
+        const row = carRow.closest('tr');
+        const inputs = row.querySelectorAll('input');
+        const carData = {};
+
+        inputs.forEach(input => {
+            carData[input.name] = input.value;
+            input.setAttribute('disabled', 'disabled');
+        })
+
+        console.log('Car:', carData);
+
+        fetch(`api/saveCar?userId=${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(carData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Car saved successful');
+                } else {
+                    throw new Error('Request for save car failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function updateRoles(userId, selectedValues) {
+
+        fetch(`api/updateRoles/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(selectedValues)
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Update roles successful');
+                } else {
+                    throw new Error('Request for update car failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function deleteCar(userId) {
+        return fetch(`api/deleteCar/${userId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Deleting car from user id: ' + userId + ' successful');
+                } else {
+                    throw new Error('Request for delete Car failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting car:', error);
+            });
+    }
+
+    function deleteUser(button) {
+        const row = button.parentNode.parentNode;
+        const idElement = row.querySelector('input[name="id"]');
+        const userId = idElement.value;
+
+        return fetch(`api/deleteUser/${userId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (response.ok) {
+                    row.remove();
+                    console.log('Deleting user id: ' + userId + ' successful');
+                } else {
+                    throw new Error('Request for delete User failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting user:', error);
+            });
+    }
+
+    function recreateTable() {
+
+        return fetch(`api/recreateTable`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Table was cleaned');
+                    location.reload();
+                } else {
+                    throw new Error('Request for clear table failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error cleaning table:', error);
+            });
+    }
+
+    function resetTable() {
+
+        return fetch(`api/resetTable`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                    console.log('Table was clean');
+                } else {
+                    throw new Error('Request for clear table failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error cleaning table:', error);
+            });
+    }
+
+    function getCarByUserId(userId) {
+        return fetch(`api/getCar/${userId}`, {
+            method: 'GET'
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Request failed');
+                }
+            })
+            .then(responseData => {
+                const getsCar = responseData;
+                console.log('Gets car: ', getsCar);
+                return getsCar;
+            })
+            .catch(error => {
+                console.error('Error save user:', error);
+            });
+    }
+
+    function getRoleByUserId(userId) {
+        return fetch(`api/getRoles/${userId}`, {
+            method: 'GET'
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Request failed');
+                }
+            })
+            .then(responseData => {
+                const getRoles = responseData;
+                console.log('Gets roles:', getRoles);
+                return getRoles;
+            })
+            .catch(error => {
+                console.error('Error save user:', error);
+            });
+    }
+
+    function createTableRow(user) {
+        const row = document.createElement('tr');
+        const idCell = createTableCell('text', 'id', user.id, true);
+        row.appendChild(idCell);
+        const firstNameCell = createTableCell('text', 'firstName', user.firstName, true);
+        row.appendChild(firstNameCell);
+        const lastNameCell = createTableCell('text', 'lastName', user.lastName, true);
+        row.appendChild(lastNameCell);
+        const sexCell = createSelectCellForSex('sex', user.sex.displayName);
+        row.appendChild(sexCell);
+        const ageCell = createTableCell('number', 'age', user.age, true);
+        row.appendChild(ageCell);
+        const loginCell = createTableCell('login', 'login', user.login, true);
+        row.appendChild(loginCell);
+        const passwordCell = createTableCell('password', 'password', user.password, true);
+        row.appendChild(passwordCell);
+        const emailCell = createTableCell('email', 'email', user.email, true);
+        row.appendChild(emailCell);
+        const roleCell = document.createElement('td');
+        const actionCell = document.createElement('td');
+        const carCell = document.createElement('td');
+        row.appendChild(roleCell)
+        row.appendChild(carCell)
+        row.appendChild(actionCell)
+        const roleButton = createButton('VIEW ROLE', 'roleButton(this)', 'inline-block');
+        const editButton = createButton('EDIT', 'edit(this)');
+        const saveButton = createButton('SAVE', 'updateUser(this)', 'none');
+        const deleteButton = createButton(' DELETE', 'deleteUser(this)');
+        const carButton = createButton(' ADD', 'carButton(this)', 'inline-block');
+        roleCell.appendChild(roleButton);
+        carButton.dataset.id = user.id;
+        carCell.appendChild(carButton);
+        actionCell.appendChild(editButton);
+        actionCell.appendChild(saveButton);
+        actionCell.appendChild(deleteButton);
+        return row;
+    }
+
+    async function carButton(button) {
+        const userRow = button.closest('tr');
+        const userIdInput = userRow.querySelector('input[name="id"]');
+        const userId = userIdInput.value;
+        const id = Number(userId);
+
+        disableInputs(userRow);
+        showPopup();
+        const userTableRow = await createPopupCar(id);
+        const popupContent = document.querySelector('.popup-content');
+        popupContent.innerHTML = '';
+        popupContent.appendChild(userTableRow);
+    }
+
+    async function roleButton(button) {
+        const userRow = button.closest('tr');
+        const userIdInput = userRow.querySelector('input[name="id"]');
+        const userId = userIdInput.value;
+        const id = Number(userId);
+
+        disableInputs(userRow);
+        showPopup();
+        const roleTableRows = await createPopupRole(id);
+        const popupContent = document.querySelector('.popup-content');
+        popupContent.innerHTML = '';
+        popupContent.appendChild(roleTableRows);
+    }
+
+    async function createPopupRole(userId) {
+        const popupContent = document.createElement('div');
+        popupContent.classList.add('popup-content');
+
+        const roles = await getRoleByUserId(userId);
+
+        const closeButton = document.createElement('span');
+        closeButton.classList.add('close');
+        closeButton.textContent = '×';
+        closeButton.onclick = closePopup;
+        popupContent.appendChild(closeButton);
+
+        const header = document.createElement('h2');
+        header.textContent = 'User roles';
+        popupContent.appendChild(header);
+
+        const roleList = document.createElement('ul');
+        roles.forEach(role => {
+            const roleCell = createSelectCellForRole('role', role.displayName);
+            const listItem = document.createElement('li');
+            const deleteRowButton = document.createElement('button');
+            deleteRowButton.textContent = 'DELETE ROLE';
+            deleteRowButton.setAttribute('type', 'button');
+            deleteRowButton.onclick = function () {
+                event.stopPropagation();
+                roleCell.remove();
+            }
+            roleCell.appendChild(deleteRowButton);
+            listItem.appendChild(roleCell);
+            roleList.appendChild(listItem);
+        });
+        popupContent.appendChild(roleList);
+
+        const updateRolesButton = document.createElement('button');
+        updateRolesButton.textContent = 'UPDATE ROLES';
+        updateRolesButton.setAttribute('type', 'button');
+        updateRolesButton.onclick = function () {
+            event.stopPropagation();
+            const selectElements = popupContent.querySelectorAll('select');
+            const selectedValues = Array.from(selectElements).map(select => select.value);
+            updateRoles(userId, selectedValues);
+        };
+
+        updateRolesButton.classList.add('popup-button');
+        popupContent.appendChild(updateRolesButton);
+
+
+        const addRoleButton = document.createElement('button');
+        addRoleButton.textContent = 'ADD ROLE';
+        addRoleButton.setAttribute('type', 'button');
+        addRoleButton.onclick = function () {
+            const roleCell = createSelectCellForRole('role', '');
+            const listItem = document.createElement('li');
+            listItem.appendChild(roleCell);
+            roleList.appendChild(listItem);
+        };
+        addRoleButton.classList.add('popup-button');
+        popupContent.appendChild(addRoleButton);
+
+        popupContent.appendChild(updateRolesButton);
+
+        return popupContent;
+    }
+
+    async function createPopupCar(userId) {
+        const popupContent = document.createElement('div');
+        popupContent.classList.add('popup-content');
+
+        const car = await getCarByUserId(userId);
+
+        const closeButton = document.createElement('span');
+        closeButton.classList.add('close');
+        closeButton.textContent = '×';
+        closeButton.onclick = closePopup;
+        popupContent.appendChild(closeButton);
+
+        const header = document.createElement('h2');
+        header.textContent = 'User Car';
+        popupContent.appendChild(header);
+        const excludeFields = ['toStringCalled', 'user', 'id'];
+
+        const carTable = document.createElement('table');
+        const carTableHead = document.createElement('thead');
+        const carTableHeadRow = document.createElement('tr');
+        const carTableBody = document.createElement('tbody');
+        const carTableRow = document.createElement('tr');
+
+        const carKeys = Object.keys(car);
+        carKeys.forEach(key => {
+            if (excludeFields.includes(key)) {
+                return;
+            }
+            const headerCell = document.createElement('th');
+            headerCell.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+            carTableHeadRow.appendChild(headerCell);
+
+            const dataCell = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = key;
+            input.value = car[key];
+            input.disabled = true;
+            dataCell.appendChild(input);
+            carTableRow.appendChild(dataCell);
+        });
+
+        const actionHeaderCell = document.createElement('th');
+        actionHeaderCell.textContent = 'Action';
+        carTableHeadRow.appendChild(actionHeaderCell);
+
+        const addButtonCell = document.createElement('tr');
+        const editButtonCell = document.createElement('tr');
+        const saveButtonCell = document.createElement('tr');
+        const deleteButtonCell = document.createElement('td');
+
+        const editButton = document.createElement('button');
+        editButton.textContent = 'EDIT';
+        editButton.setAttribute('type', 'button');
+        editButton.onclick = function () {
+            event.stopPropagation();
+            enableInputs(carTableRow);
+            editButton.style.display = 'none';
+            saveButton.style.display = 'inline-block';
+        };
+
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'SAVE';
+        saveButton.setAttribute('type', 'button');
+        saveButton.onclick = function () {
+            event.stopPropagation();
+            disableInputs(carTableRow);
+            saveButton.style.display = 'none';
+            editButton.style.display = 'inline-block';
+            saveCar(userId, carTableRow);
+        };
+
+        const addButton = document.createElement('button');
+        addButton.textContent = 'ADD';
+        addButton.setAttribute('type', 'button');
+        addButton.onclick = function () {
+            event.stopPropagation();
+            disableInputs(carTableRow);
+            editButton.style.display = 'inline-block';
+            saveButton.style.display = 'none';
+            deleteButton.style.display = 'inline-block';
+            addButton.style.display = 'none';
+            saveCar(userId, carTableRow);
+        };
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'DELETE';
+        deleteButton.setAttribute('type', 'button');
+        deleteButton.onclick = function () {
+            event.stopPropagation();
+            enableInputs(carTableRow);
+            clearAddRowInputs(carTableRow)
+            editButton.style.display = 'none';
+            saveButton.style.display = 'none';
+            deleteButton.style.display = 'none';
+            addButton.style.display = 'inline-block';
+            deleteCar(userId);
+        };
+
+        if (car.id === null) {
+            enableInputs(carTableRow);
+            editButton.style.display = 'none';
+            deleteButton.style.display = 'none';
+            addButton.style.display = 'inline-block';
+            saveButton.style.display = 'none';
+        } else {
+            editButton.style.display = 'inline-block';
+            deleteButton.style.display = 'inline-block';
+            addButton.style.display = 'none';
+            saveButton.style.display = 'none';
+        }
+
+
+        editButtonCell.appendChild(editButton);
+        saveButtonCell.appendChild(saveButton);
+        addButtonCell.appendChild(addButton);
+        deleteButtonCell.appendChild(deleteButton);
+
+        carTableRow.appendChild(editButtonCell);
+        carTableRow.appendChild(saveButtonCell);
+        carTableRow.appendChild(addButtonCell);
+        carTableRow.appendChild(deleteButtonCell);
+
+        carTableHead.appendChild(carTableHeadRow);
+        carTable.appendChild(carTableHead)
+        carTableBody.appendChild(carTableRow);
+        carTable.appendChild(carTableBody);
+        popupContent.appendChild(carTable);
+
+        return popupContent;
+    }
+
+    function showPopup() {
+        const popup = document.getElementById("popup");
+        popup.style.display = "block";
+    }
+
+    function closePopup() {
+        const popup = document.getElementById("popup");
+        popup.style.display = "none";
+        location.reload();
+    }
+
+    function edit(button) {
+        const row = button.closest('tr');
+        enableInputs(row);
+        button.style.display = 'none';
+        button.nextElementSibling.style.display = 'inline-block';
+    }
+
+    function disableInputs(row) {
+        const inputs = row.querySelectorAll('input, select');
+        inputs.forEach(input => input.setAttribute('disabled', 'disabled'));
+    }
+
+    function enableInputs(row) {
+        const inputs = row.querySelectorAll('input, select');
+        inputs.forEach(input => input.removeAttribute('disabled'));
+    }
+
+    function clearAddRowInputs(row) {
+        const rowInputs = row.querySelectorAll('input, select');
+        rowInputs.forEach(input => {
+            if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            } else {
+                input.value = '';
+            }
+        });
+    }
+
+    function createSelectCellForRole(name, selectedValue) {
+        const cell = document.createElement('td');
+
+        const select = document.createElement('select');
+
+        select.name = name;
+
+        const sexEnumValues = ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_MODERATOR', 'ROLE_GUEST'];
+        sexEnumValues.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            if (value === selectedValue) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        cell.appendChild(select);
+        return cell;
+    }
+
+    function createSelectCellForSex(name, selectedValue) {
+        const cell = document.createElement('td');
+
+        const select = document.createElement('select');
+
+        select.name = name;
+
+        const sexEnumValues = ['MALE', 'FEMALE', 'UNDEFINED'];
+        sexEnumValues.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            if (value === selectedValue) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+            select.setAttribute('disabled', 'disabled');
+        });
+
+        cell.appendChild(select);
+        return cell;
+    }
+
+    function updateSelectedSex(selectElement) {
+        const selectedSex = selectElement.value;
+        const rolValue = selectElement.getAttribute('rol');
+        if (rolValue) {
+            enableInputs(rolValue);
+        }
+        console.log('Selected Sex:', selectedSex);
+    }
+
+    function updateSelectedRole(selectElement) {
+        const selectedRole = selectElement.value;
+        const rolValue = selectElement.getAttribute('rol');
+
+        if (rolValue) {
+            enableInputs(rolValue);
+        }
+
+        console.log('Selected Role:', selectedRole);
+    }
+
+    function createTableCell(type, name, value, disabled) {
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = type;
+        input.name = name;
+        input.value = value;
+        if (disabled) {
+            input.setAttribute('disabled', 'disabled');
+        }
+        cell.appendChild(input);
+        return cell;
+    }
+
+    function createButton(text, onclick, display = 'inline-block') {
+        const button = document.createElement('button');
+        button.textContent = text;
+        button.onclick = function () {
+            eval(onclick);
+        };
+        button.style.display = display;
+        return button;
+    }
+
+    function logout() {
+        fetch('api/logout', {
+            method: 'POST'
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    console.error('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Logout failed', error);
+            });
+    }
+
+</script>
+
+<style>
+    .popup {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .popup-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        position: relative;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    #logoutButton {
+        position: absolute;
+        top: 40px;
+        right: 40px;
+    }
+
+    .popup-button {
+        margin-right: 10px;
+    }
+
+    body {
+        position: relative;
+    }
+</style>
+</body>
+</html>
